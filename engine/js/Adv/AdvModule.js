@@ -1,219 +1,10 @@
-AdvTag.tl = null;
-AdvTag.timelines = [];
-AdvTag.labels = {};
+AdvTag.tl = {};
+AdvTag.timelines = {};
 AdvTag.exit = {};
-
+AdvTag.yure = [];
 AdvTag.plugin.tag = {};
-
-function test()
-{
-    AdvTag.tl = null;
-    AdvTag.timelines = [];
-    
-    var breakpoint = 0;
-
-    AdvTag.tl = anime.timeline({
-        autoplay: false,
-        update: function (instance) {
-            for (var i = 0; i < AdvTag.timelines.length; i++) {
-                AdvTag.timelines[i].seek(instance.currentTime);
-            }
-
-            var controler = document.getElementById("test_controler");
-            if (controler) {
-                controler.value = (instance.currentTime / AdvTag.tl.duration) * 100;
-                var viewer = document.getElementById("test_secViewer");
-
-                if (viewer)
-                    viewer.value = (parseInt(AdvTag.tl.duration * (controler.value / 100)) / 1000) + "秒";
-            }
-        }
-    });
-
-    var duplication = {
-        chara: {}
-    };
-
-    for (var i = 0; i < list.length; i++) {
-        if (Array.isArray(list[i])) {
-            for (var j = 0; j < list[i].length; j++) {
-                if (AdvTag.plugin.tag[list[i][j].tagname]) {
-                    switch (list[i][j].tagname) {
-                        case "chara_show":
-                            var name = "";
-                            var isArray = Array.isArray(list[i][j].data);
-
-                            if (isArray) {
-                                name = list[i][j].data[0].pm.name.value.substring(list[i][j].data[0].pm.name.value.lastIndexOf("/") + 1);
-                            }
-
-                            else {
-                                name = list[i][j].data.pm.name.value.substring(list[i][j].data.pm.name.value.lastIndexOf("/") + 1);
-                            }
-
-                            if (name in duplication.chara) {
-                                console.log("duplication");
-                                if (isArray)
-                                    list[i][j].data[0].pm.duplication = duplication.chara[name];
-                                else
-                                    list[i][j].data.pm.duplication = duplication.chara[name];
-                                duplication.chara[name]++;
-                            }
-
-                            else
-                                duplication.chara[name] = 0;
-                            break;
-                    }
-                }
-            }
-        }
-
-        else {
-            switch (list[i].tagname) {
-                case "chara_show":
-                    var name = "";
-                    var isArray = Array.isArray(list[i].data);
-                    if (isArray) {
-                        name = list[i].data[0].pm.name.value.substring(list[i].data[0].pm.name.value.lastIndexOf("/") + 1);
-                    }
-
-                    else {
-                        name = list[i].data.pm.name.value.substring(list[i].data.pm.name.value.lastIndexOf("/") + 1);
-                    }
-
-                    if (name in duplication.chara) {
-                        console.log("duplication");
-
-                        if (isArray)
-                            list[i].data[0].pm.duplication = duplication.chara[name];
-                        else
-                            list[i].data.pm.duplication = duplication.chara[name];
-
-                        duplication.chara[name]++;
-                    }
-
-                    else
-                        duplication.chara[name] = 0;
-                    break;
-            }
-        }
-    }
-
-    for (var i = 0; i < list.length; i++) {
-        if (Array.isArray(list[i])) {
-            for (var j = 0; j < list[i].length; j++) {
-                if (AdvTag.plugin.tag[list[i][j].tagname]) {
-                    switch (list[i][j].tagname) {
-                        case "label":
-                            if (AdvTag.plugin.tag[list[i][j].tagname])
-                                AdvTag.plugin.tag[list[i][j].tagname].init(list[i]);
-                            else
-                                console.log(list[i][j].tagname);
-                            break;
-
-                        default:
-                            if (AdvTag.plugin.tag[list[i][j].tagname])
-                                AdvTag.plugin.tag[list[i][j].tagname].init(list[i][j].data);
-                            else
-                                console.log(list[i][j].tagname);
-                            break;
-                    }
-                }
-
-                if (Array.isArray(list[i][j].data)) {
-                    for (var k = 0; k < list[i][j].data.length; k++) {
-                        if (list[i][j].data[k].pm.breakpoint)
-                            breakpoint = list[i][j].data[k].start;
-                    }
-                }
-
-                else {
-                    if (list[i][j].data.pm.breakpoint) {
-                        breakpoint = list[i][j].data.start;
-                    }
-                }
-            }
-        }
-
-        else {
-            switch (list[i].tagname) {
-                default:
-                    if (AdvTag.plugin.tag[list[i].tagname])
-                        AdvTag.plugin.tag[list[i].tagname].init(list[i].data);
-                    else
-                        console.log(list[i].tagname);
-                    break;
-            }
-
-            if (Array.isArray(list[i].data)) {
-                for (var j = 0; j < list[i].data.length; j++) {
-                    if (list[i].data[j].pm.breakpoint)
-                        breakpoint = list[i].data[j].start;
-                }
-            }
-
-            else {
-                if (list[i].data.pm.breakpoint) {
-                    breakpoint = list[i].data.start;
-                }
-            }
-        }
-    }
-
-    for(var i=0; i<list.length; i++)
-    {
-        if (Array.isArray(list[i])) {
-            var j = list[i].length - 1;
-
-            if (Array.isArray(list[i][j].data)) {
-                var k = list[i][j].data.length - 1;
-                AdvTag.tl.duration = Math.max(AdvTag.tl.duration, list[i][j].data[k].start + parseFloat(list[i][j].data[k].pm.time.value) + 1);
-            }
-
-            else {
-                if(list[i][j].data.pm.time === undefined)
-                    list[i][j].data.pm.time = {value: 0};
-
-                AdvTag.tl.duration = Math.max(AdvTag.tl.duration, list[i][j].data.start + parseFloat(list[i][j].data.pm.time.value) + 1);
-            }
-        }
-
-        else {
-            if (Array.isArray(list[i].data)) {
-                var k = list[i].data.length - 1;
-                ///AdvTag.tl.duration = list[i].data[k].start + parseFloat(list[i].data[k].pm.time.value);
-
-                if(list[i].data[k].time === undefined)
-                {
-                    list[i].data[k].time = list[i].data[k].pm.time;
-                }
-
-                if(list[i].data[k].time.value)
-                    AdvTag.tl.duration = Math.max(AdvTag.tl.duration, list[i].data[k].start + parseFloat(list[i].data[k].time.value) + 1);
-                else
-                    AdvTag.tl.duration = Math.max(AdvTag.tl.duration,list[i].data[k].start + parseFloat(list[i].data[k].time) + 1);
-                    
-            }
-
-            else {
-                if (list[i].data.pm.time == null) {
-                    list[i].data.pm.time = { value: 0 };
-                }
-
-                else if(list[i].data.pm.time.value == null)
-                {
-                    list[i].data.pm.time = { value: list[i].data.pm.time };
-                }
-
-                AdvTag.tl.duration = Math.max(AdvTag.tl.duration, list[i].data.start + parseFloat(list[i].data.pm.time.value) + 1);
-            }
-        }
-
-        console.log("i: " + i + " duration: " + AdvTag.tl.duration);
-    }
-    
-    AdvTag.tl.seek(breakpoint);
-}
+AdvTag.s = {};
+AdvTag.p = {};
 
 AdvTag.plugin.exec = {
     array_tag: [],
@@ -221,7 +12,7 @@ AdvTag.plugin.exec = {
     current_order_index: -1,
     isStop: true,
     isInit: false,
-    init: function () {
+    init: function (scenario, list) {
         for (var order_type in AdvTag.plugin.tag) {
             this.master_tag[order_type] = object(AdvTag.plugin.tag[order_type]);
             this.master_tag[order_type].parent = this.parent
@@ -232,51 +23,60 @@ AdvTag.plugin.exec = {
 
         var breakpoint = 0;
 
-        AdvTag.tl = anime.timeline({
+        var event = ["begin", "loopBegin", "changeBegin", "change", "changeComplete", "update", "loopComplete", "complete"];
+        var tl_instance = {
             autoplay: false,
-            update: function (instance) {
-                for (var i = 0; i < AdvTag.timelines.length; i++) {
-                    AdvTag.timelines[i].seek(instance.currentTime);
+        };
+
+        AdvTag.timelines[scenario] = [];
+
+        for(var i=0; i<event.length; i++)
+        {
+            tl_instance[event[i]] = function (instance) {
+                for (var i = 0; i < AdvTag.timelines[query.currentScenario].length; i++) {
+                    AdvTag.timelines[query.currentScenario][i].seek(instance.currentTime);
                 }
 
                 var controler = document.getElementById("test_controler");
                 if (controler) {
-                    controler.value = (instance.currentTime / AdvTag.tl.duration) * 100;
+                    controler.value = (instance.currentTime / AdvTag.tl[query.currentScenario].duration) * 100;
                     var viewer = document.getElementById("test_secViewer");
 
                     if (viewer)
-                        viewer.value = (parseInt(AdvTag.tl.duration * (controler.value / 100)) / 1000) + "秒";
+                        viewer.value = (parseInt(AdvTag.tl[query.currentScenario].duration * (controler.value / 100)) / 1000) + "秒";
                 }
-            }
-        });
+            };
+        }
+        
+        AdvTag.tl[scenario] = anime.timeline(tl_instance);
 
         var duplication = {
             chara: {}
         };
 
-        for (var i = 0; i < Adv.core.scenario.length; i++) {
-            if (Array.isArray(Adv.core.scenario[i])) {
-                for (var j = 0; j < Adv.core.scenario[i].length; j++) {
-                    if (AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname]) {
-                        switch (Adv.core.scenario[i][j].tagname) {
+        for (var i = 0; i < list.length; i++) {
+            if (Array.isArray(list[i])) {
+                for (var j = 0; j < list[i].length; j++) {
+                    if (AdvTag.plugin.tag[list[i][j].tagname]) {
+                        switch (list[i][j].tagname) {
                             case "chara_show":
                                 var name = "";
-                                var isArray = Array.isArray(Adv.core.scenario[i][j].data);
+                                var isArray = Array.isArray(list[i][j].data);
 
                                 if (isArray) {
-                                    name = Adv.core.scenario[i][j].data[0].pm.name.value.substring(Adv.core.scenario[i][j].data[0].pm.name.value.lastIndexOf("/") + 1);
+                                    name = list[i][j].data[0].pm.name.value.substring(list[i][j].data[0].pm.name.value.lastIndexOf("/") + 1);
                                 }
 
                                 else {
-                                    name = Adv.core.scenario[i][j].data.pm.name.value.substring(Adv.core.scenario[i][j].data.pm.name.value.lastIndexOf("/") + 1);
+                                    name = list[i][j].data.pm.name.value.substring(list[i][j].data.pm.name.value.lastIndexOf("/") + 1);
                                 }
 
                                 if (name in duplication.chara) {
                                     console.log("duplication");
                                     if (isArray)
-                                        Adv.core.scenario[i][j].data[0].pm.duplication = duplication.chara[name];
+                                        list[i][j].data[0].pm.duplication = duplication.chara[name];
                                     else
-                                        Adv.core.scenario[i][j].data.pm.duplication = duplication.chara[name];
+                                        list[i][j].data.pm.duplication = duplication.chara[name];
                                     duplication.chara[name]++;
                                 }
 
@@ -289,25 +89,25 @@ AdvTag.plugin.exec = {
             }
 
             else {
-                switch (Adv.core.scenario[i].tagname) {
+                switch (list[i].tagname) {
                     case "chara_show":
                         var name = "";
-                        var isArray = Array.isArray(Adv.core.scenario[i].data);
+                        var isArray = Array.isArray(list[i].data);
                         if (isArray) {
-                            name = Adv.core.scenario[i].data[0].pm.name.value.substring(Adv.core.scenario[i].data[0].pm.name.value.lastIndexOf("/") + 1);
+                            name = list[i].data[0].pm.name.value.substring(list[i].data[0].pm.name.value.lastIndexOf("/") + 1);
                         }
 
                         else {
-                            name = Adv.core.scenario[i].data.pm.name.value.substring(Adv.core.scenario[i].data.pm.name.value.lastIndexOf("/") + 1);
+                            name = list[i].data.pm.name.value.substring(list[i].data.pm.name.value.lastIndexOf("/") + 1);
                         }
 
                         if (name in duplication.chara) {
                             console.log("duplication");
 
                             if (isArray)
-                                Adv.core.scenario[i].data[0].pm.duplication = duplication.chara[name];
+                                list[i].data[0].pm.duplication = duplication.chara[name];
                             else
-                                Adv.core.scenario[i].data.pm.duplication = duplication.chara[name];
+                                list[i].data.pm.duplication = duplication.chara[name];
 
                             duplication.chara[name]++;
                         }
@@ -319,122 +119,135 @@ AdvTag.plugin.exec = {
             }
         }
 
-        for (var i = 0; i < Adv.core.scenario.length; i++) {
-            if (Array.isArray(Adv.core.scenario[i])) {
-                for (var j = 0; j < Adv.core.scenario[i].length; j++) {
-                    if (AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname]) {
-                        switch (Adv.core.scenario[i][j].tagname) {
+        for (var i = 0; i < list.length; i++) {
+            if (Array.isArray(list[i])) {
+                for (var j = 0; j < list[i].length; j++) {
+                    if (AdvTag.plugin.tag[list[i][j].tagname]) {
+                        switch (list[i][j].tagname) {
                             case "label":
-                                if (AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname])
-                                    AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname].init(Adv.core.scenario[i]);
+                                if (AdvTag.plugin.tag[list[i][j].tagname])
+                                    AdvTag.plugin.tag[list[i][j].tagname].init(list[i], scenario);
                                 else
-                                    console.log(Adv.core.scenario[i][j].tagname);
+                                    console.log(list[i][j].tagname);
                                 break;
 
                             default:
-                                if (AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname])
-                                    AdvTag.plugin.tag[Adv.core.scenario[i][j].tagname].init(Adv.core.scenario[i][j].data);
+                                if (AdvTag.plugin.tag[list[i][j].tagname])
+                                    AdvTag.plugin.tag[list[i][j].tagname].init(list[i][j].data, scenario);
                                 else
-                                    console.log(Adv.core.scenario[i][j].tagname);
+                                    console.log(list[i][j].tagname);
                                 break;
                         }
                     }
 
-                    if (Array.isArray(Adv.core.scenario[i][j].data)) {
-                        for (var k = 0; k < Adv.core.scenario[i][j].data.length; k++) {
-                            if (Adv.core.scenario[i][j].data[k].pm.breakpoint)
-                                breakpoint = Adv.core.scenario[i][j].data[k].start;
+                    if (Array.isArray(list[i][j].data)) {
+                        for (var k = 0; k < list[i][j].data.length; k++) {
+                            if (list[i][j].data[k].pm.breakpoint)
+                                breakpoint = list[i][j].data[k].start;
                         }
                     }
 
                     else {
-                        if (Adv.core.scenario[i][j].data.pm.breakpoint) {
-                            breakpoint = Adv.core.scenario[i][j].data.start;
+                        if (list[i][j].data.pm.breakpoint) {
+                            breakpoint = list[i][j].data.start;
                         }
                     }
                 }
             }
 
             else {
-                switch (Adv.core.scenario[i].tagname) {
+                switch (list[i].tagname) {
                     default:
-                        if (AdvTag.plugin.tag[Adv.core.scenario[i].tagname])
-                            AdvTag.plugin.tag[Adv.core.scenario[i].tagname].init(Adv.core.scenario[i].data);
+                        if (AdvTag.plugin.tag[list[i].tagname])
+                            AdvTag.plugin.tag[list[i].tagname].init(list[i].data, scenario);
                         else
-                            console.log(Adv.core.scenario[i].tagname);
+                            console.log(list[i].tagname);
                         break;
                 }
 
-                if (Array.isArray(Adv.core.scenario[i].data)) {
-                    for (var j = 0; j < Adv.core.scenario[i].data.length; j++) {
-                        if (Adv.core.scenario[i].data[j].pm.breakpoint)
-                            breakpoint = Adv.core.scenario[i].data[j].start;
+                if (Array.isArray(list[i].data)) {
+                    for (var j = 0; j < list[i].data.length; j++) {
+                        if (list[i].data[j].pm.breakpoint)
+                            breakpoint = list[i].data[j].start;
                     }
                 }
 
                 else {
-                    if (Adv.core.scenario[i].data.pm.breakpoint) {
-                        breakpoint = Adv.core.scenario[i].data.start;
+                    if (list[i].data.pm.breakpoint) {
+                        breakpoint = list[i].data.start;
                     }
                 }
             }
         }
 
-        for(var i=0; i<Adv.core.scenario.length; i++)
+        for(var i=0; i<list.length; i++)
         {
-            if (Array.isArray(Adv.core.scenario[i])) {
-                var j = Adv.core.scenario[i].length - 1;
+            if (Array.isArray(list[i])) {
+                var j = list[i].length - 1;
     
-                if (Array.isArray(Adv.core.scenario[i][j].data)) {
-                    var k = Adv.core.scenario[i][j].data.length - 1;
-                    AdvTag.tl.duration = Math.max(AdvTag.tl.duration, Adv.core.scenario[i][j].data[k].start + parseFloat(Adv.core.scenario[i][j].data[k].pm.time.value) + 1);
+                if (Array.isArray(list[i][j].data)) {
+                    var k = list[i][j].data.length - 1;
+                    AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration, list[i][j].data[k].start + parseFloat(list[i][j].data[k].pm.time.value) + 1);
                 }
     
                 else {
-                    if(Adv.core.scenario[i][j].data.pm.time === undefined)
-                        Adv.core.scenario[i][j].data.pm.time = {value: 0};
+                    if(list[i][j].data.pm.time === undefined)
+                        list[i][j].data.pm.time = {value: 0};
 
-                    AdvTag.tl.duration = Math.max(AdvTag.tl.duration, Adv.core.scenario[i][j].data.start + parseFloat(Adv.core.scenario[i][j].data.pm.time.value) + 1);
+                    AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration, list[i][j].data.start + parseFloat(list[i][j].data.pm.time.value) + 1);
                 }
             }
     
             else {
-                if (Array.isArray(Adv.core.scenario[i].data)) {
-                    var k = Adv.core.scenario[i].data.length - 1;
-                    ///AdvTag.tl.duration = Adv.core.scenario[i].data[k].start + parseFloat(Adv.core.scenario[i].data[k].pm.time.value);
+                if (Array.isArray(list[i].data)) {
+                    var k = list[i].data.length - 1;
+                    ///AdvTag.tl[scenario].duration = list[i].data[k].start + parseFloat(list[i].data[k].pm.time.value);
 
-                    if(Adv.core.scenario[i].data[k].time === undefined)
+                    for(var t=0; t<list[i].data.length; t++)
                     {
-                        Adv.core.scenario[i].data[k].time = Adv.core.scenario[i].data[k].pm.time;
+                        if(list[i].data[t].time === undefined)    
+                        {
+                            list[i].data[t].time = list[i].data[t].pm.time;
+                        }
+
+                        if(list[i].data[t].time.value !== undefined)
+                            AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration, list[i].data[t].start + parseFloat(list[i].data[t].time.value) + 1);
+                        else
+                            AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration,list[i].data[t].start + parseFloat(list[i].data[t].time) + 1);    
                     }
-    
-                    if(Adv.core.scenario[i].data[k].time.value)
-                        AdvTag.tl.duration = Math.max(AdvTag.tl.duration, Adv.core.scenario[i].data[k].start + parseFloat(Adv.core.scenario[i].data[k].time.value) + 1);
+                    /*
+                    if(list[i].data[k].time === undefined)
+                    {
+                        list[i].data[k].time = list[i].data[k].pm.time;
+                    }
+
+                    if(list[i].data[k].time.value)
+                        AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration, list[i].data[k].start + parseFloat(list[i].data[k].time.value) + 1);
                     else
-                        AdvTag.tl.duration = Math.max(AdvTag.tl.duration,Adv.core.scenario[i].data[k].start + parseFloat(Adv.core.scenario[i].data[k].time) + 1);
-                        
+                        AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration,list[i].data[k].start + parseFloat(list[i].data[k].time) + 1);
+                    */  
                 }
     
                 else {
-                    if (Adv.core.scenario[i].data.pm.time == null) {
-                        Adv.core.scenario[i].data.pm.time = { value: 0 };
+                    if (list[i].data.pm.time == null) {
+                        list[i].data.pm.time = { value: 0 };
                     }
 
-                    else if(Adv.core.scenario[i].data.pm.time.value == null)
+                    else if(list[i].data.pm.time.value == null)
                     {
-                        Adv.core.scenario[i].data.pm.time = { value: Adv.core.scenario[i].data.pm.time };
+                        list[i].data.pm.time = { value: list[i].data.pm.time };
                     }
     
-                    AdvTag.tl.duration = Math.max(AdvTag.tl.duration, Adv.core.scenario[i].data.start + parseFloat(Adv.core.scenario[i].data.pm.time.value) + 1);
+                    AdvTag.tl[scenario].duration = Math.max(AdvTag.tl[scenario].duration, list[i].data.start + parseFloat(list[i].data.pm.time.value) + 1);
                 }
             }
 
-            console.log("i: " + i + " duration: " + AdvTag.tl.duration);
+            console.log("i: " + i + " duration: " + AdvTag.tl[scenario].duration);
         }
         
-        AdvTag.tl.seek(breakpoint);
+        AdvTag.tl[scenario].seek(breakpoint);
     },
-
+    
     stop: function () {
         if (!this.isStop) {
             this.isStop = true;
@@ -456,186 +269,240 @@ AdvTag.plugin.exec = {
                 loading.style.display = "none";
             }
 
-            this.init();
-
-            for(var i=0; i<Adv.core.scenario.length; i++)
+            for(var name in Adv.core.cache_scenario)
             {
-                if(Array.isArray(Adv.core.scenario[i]))
-                {
-                    if(Adv.core.scenario[i][0].tagname === "label")
-                    {
-                        if(Adv.core.scenario[i][1].tagname !== "chara_show")
-                            continue;
+                query.currentScenario = name;
+                this.init(name, Adv.core.cache_scenario[name]);
+            }
+            
+            query.currentScenario = JSON.parse(resources["info.json"]).start;
+            Adv.core.scenario = Adv.core.cache_scenario[query.currentScenario];
+            
 
+            var prev_create = function(list){
+                for(var i=0; i<list.length; i++)
+                {
+                    if(Array.isArray(list[i]))
+                    {
+                        if(list[i][0].tagname === "label")
+                        {
+                            var pm = {};
+    
+                            for(var j=1; j<list[i].length; j++)
+                            {
+                                for(var name in list[i][j].data[0].pm)
+                                {
+                                    pm[name] = list[i][j].data[0].pm[name].value === undefined ? list[i][j].data[0].pm[name] : list[i][j].data[0].pm[name].value;
+                                }
+            
+                                if(list[i][j].data[0].pm.tagname === "chara_show")
+                                {
+                                    pm.name = pm.name.substring(pm.name.lastIndexOf("/") + 1);
+                                    Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][j].data[0].pm.tagname].pm), pm));
+                                }
+            
+                                else if(list[i][j].data[0].pm.tagname === "text_show")
+                                {
+                                    Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][j].data[0].pm.tagname].pm), pm));
+                                }
+            
+                                else if(list[i][j].data[0].pm.tagname === "spine")
+                                {
+                                    Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][j].data[0].pm.tagname].pm), pm));
+                                }
+            
+                                else if(list[i][j].data[0].pm.tagname === "effects")
+                                {
+                                    Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][j].data[0].pm.tagname].pm), pm));
+                                }
+                            }
+    
+                            continue;
+                        }
+    
+                        if(list[i][0].tagname !== "chara_show")
+                            continue;
+    
                         var pm = {};
-
-                        for(var name in Adv.core.scenario[i][1].data[0].pm)
+    
+                        for(var name in list[i][0].data[0].pm)
                         {
-                            pm[name] = Adv.core.scenario[i][1].data[0].pm[name].value === undefined ? Adv.core.scenario[i][1].data[0].pm[name] : Adv.core.scenario[i][1].data[0].pm[name].value;
+                            pm[name] = list[i][0].data[0].pm[name].value === undefined ? list[i][0].data[0].pm[name] : list[i][0].data[0].pm[name].value;
                         }
-
-                        if(Adv.core.scenario[i][1].data[0].pm.tagname === "chara_show")
-                        {
-                            pm.name = pm.name.substring(pm.name.lastIndexOf("/") + 1);
-                            Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][1].data[0].pm.tagname].pm), pm));
-                        }
-
-                        else if(Adv.core.scenario[i][1].data[0].pm.tagname === "text_show")
-                        {
-                            Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][1].data[0].pm.tagname].pm), pm));
-                        }
-
-                        else if(Adv.core.scenario[i][1].data[0].pm.tagname === "spine")
-                        {
-                            Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][1].data[0].pm.tagname].pm), pm));
-                        }
-
-                        else if(Adv.core.scenario[i][1].data[0].pm.tagname === "effects")
-                        {
-                            Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][1].data[0].pm.tagname].pm), pm));
-                        }
-
-                        continue;
-                    }
-
-                    if(Adv.core.scenario[i][0].tagname !== "chara_show")
-                        continue;
-
-                    var pm = {};
-
-                    for(var name in Adv.core.scenario[i][0].data[0].pm)
-                    {
-                        pm[name] = Adv.core.scenario[i][0].data[0].pm[name].value === undefined ? Adv.core.scenario[i][0].data[0].pm[name] : Adv.core.scenario[i][0].data[0].pm[name].value;
-                    }
-
-                    if(Adv.core.scenario[i][0].data[0].pm.tagname === "chara_show")
-                    {
-                        pm.name = pm.name.substring(pm.name.lastIndexOf("/") + 1);
-                        Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][0].data[0].pm.tagname].pm), pm));
-                    }
-
-                    else if(Adv.core.scenario[i][0].data[0].pm.tagname === "text_show")
-                    {
-                        Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][0].data[0].pm.tagname].pm), pm));
-                    }
-
-                    else if(Adv.core.scenario[i][0].data[0].pm.tagname === "spine")
-                    {
-                        Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i][0].data[0].pm.tagname].pm), pm));
-                    }
-
-                    else if(Adv.core.scenario[i].data[0].pm.tagname === "bg_show")
-                    {
-                        Adv.core.exec.master_tag["prev_bg"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
-                    }
-
-                    else if(Adv.core.scenario[i].data[0].pm.tagname === "effects")
-                    {
-                        Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
-                    }
-                }
-
-                else
-                {
-                    if(Adv.core.scenario[i].tagname === "select")
-                    {
-                        if(Adv.core.selects === undefined)
-                            Adv.core.selects = {};
-
-                        var name = Adv.core.scenario[i].data.pm.image.value.substring(Adv.core.scenario[i].data.pm.image.value.lastIndexOf("/") + 1);
-
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value] = new PIXI.Sprite(Adv.core.CommonImgMgr.getTexture(name));
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].alpha = 0;
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].anchor.set(0.5, 0.5);
-
-                        var text = new PIXI.Text(Adv.core.scenario[i].data.pm.text.value, new PIXI.TextStyle({
-                            fill: ['#ffffff'], // gradient
-                        }));
-
-                        text.anchor.set(0.5, 0.5);
-                
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].addChild(text);
-
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].interactive = true;
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].buttonMode = true;
-
-                        Adv.core.selects[Adv.core.scenario[i].data.pm.label.value].on('pointerdown', function(){
-                            Comima.contain.selectActivate(false);
-                            for(var name in Adv.core.selects)
-                            {
-                                Adv.core.selects[name].alpha = 0;
-                            }
-
-                            if(AdvTag.labels[this.target.value])
-                            {
-                                AdvTag.tl.seek(AdvTag.labels[this.target.value]);
-                                AdvTag.tl.play();
-                            }
-                        }.bind(Adv.core.scenario[i].data.pm));
-                        Comima.contain.addChild(Adv.core.selects[Adv.core.scenario[i].data.pm.label.value], "select");
-                    }
-
-                    switch(Adv.core.scenario[i].tagname)
-                    {
-                        case "chara_show":
-                        case "text_show":
-                        case "spine":
-                        case "bg_show":
-                        case "effects":
-                        break;
-
-                        default:
-                            continue;
-                    }
-
-                    var pm = {};
-
-                    if(Array.isArray(Adv.core.scenario[i].data))
-                    {
-                        for(var name in Adv.core.scenario[i].data[0].pm)
-                        {
-                            pm[name] = Adv.core.scenario[i].data[0].pm[name].value === undefined ? Adv.core.scenario[i].data[0].pm[name] : Adv.core.scenario[i].data[0].pm[name].value;
-                        }
-        
-                        if(Adv.core.scenario[i].data[0].pm.tagname === "chara_show")
+    
+                        if(list[i][0].data[0].pm.tagname === "chara_show")
                         {
                             pm.name = pm.name.substring(pm.name.lastIndexOf("/") + 1);
-                            Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
+                            Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][0].data[0].pm.tagname].pm), pm));
                         }
-        
-                        else if(Adv.core.scenario[i].data[0].pm.tagname === "text_show")
+    
+                        else if(list[i][0].data[0].pm.tagname === "text_show")
                         {
-                            Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
+                            Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][0].data[0].pm.tagname].pm), pm));
                         }
-        
-                        else if(Adv.core.scenario[i].data[0].pm.tagname === "spine")
+    
+                        else if(list[i][0].data[0].pm.tagname === "spine")
                         {
-                            Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
+                            Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i][0].data[0].pm.tagname].pm), pm));
                         }
-
-                        else if(Adv.core.scenario[i].data[0].pm.tagname === "effects")
+    
+                        else if(list[i].data[0].pm.tagname === "bg_show")
                         {
-                            Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data[0].pm.tagname].pm), pm));
+                            Adv.core.exec.master_tag["prev_bg"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
+                        }
+    
+                        else if(list[i].data[0].pm.tagname === "effects")
+                        {
+                            Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
                         }
                     }
+    
+                    else
+                    {
+                        if(list[i].tagname === "select")
+                        {
+                            if(Adv.core.selects === undefined)
+                                Adv.core.selects = {};
+    
+                            var name = list[i].data.pm.image.value.substring(list[i].data.pm.image.value.lastIndexOf("/") + 1);
+    
+                            Adv.core.selects[list[i].data.pm.label.value] = new PIXI.Sprite(Adv.core.CommonImgMgr.getTexture(name));
+                            Adv.core.selects[list[i].data.pm.label.value].alpha = 0;
+                            Adv.core.selects[list[i].data.pm.label.value].anchor.set(0.5, 0.5);
+    
+                            var text = new PIXI.Text(list[i].data.pm.text.value, new PIXI.TextStyle({
+                                fill: ['#ffffff'], // gradient
+                            }));
+    
+                            text.anchor.set(0.5, 0.5);
                     
-                    else 
-                    {
-                        for(var name in Adv.core.scenario[i].data.pm)
-                        {
-                            pm[name] = Adv.core.scenario[i].data.pm[name].value === undefined ? Adv.core.scenario[i].data.pm[name] : Adv.core.scenario[i].data.pm[name].value;
+                            Adv.core.selects[list[i].data.pm.label.value].addChild(text);
+    
+                            Adv.core.selects[list[i].data.pm.label.value].interactive = true;
+                            Adv.core.selects[list[i].data.pm.label.value].buttonMode = true;
+    
+                            Adv.core.selects[list[i].data.pm.label.value].on('pointerdown', function(){
+    
+                                Comima.contain.selectActivate(false);
+                                for(var name in Adv.core.selects)
+                                {
+                                    Adv.core.selects[name].alpha = 0;
+                                    Adv.core.selects[name].visible = false;
+                                }
+                                
+                                if(this.scenario.value !== "")
+                                {
+                                    for(var name in Adv.core.sprites)
+                                    {
+                                        Adv.core.sprites[name].alpha = 0;
+                                    }
+    
+                                    AdvTag.s[query.currentScenario] = false;
+                                    AdvTag.p[query.currentScenario] = false;
+    
+                                    /*
+                                    if(query.currentScenario === this.scenario.value)
+                                        AdvTag.tl[query.currentScenario].play();
+                                      
+                                        */
+                                    Adv.core.isCW = false;
+                                    query.currentScenario = this.scenario.value;
+    
+                                    for(var i=0; i<AdvTag.timelines[query.currentScenario].length; i++)
+                                    {
+                                        AdvTag.timelines[query.currentScenario][i].reset();
+                                    }
+    
+                                    if(Adv.core.labels[this.target.value] !== undefined)
+                                    {
+                                        if(AdvTag.tl[query.currentScenario])
+                                        {
+                                            AdvTag.labelTime = Adv.core.labels[this.target.value];
+                                            AdvTag.tl[query.currentScenario].seek(Adv.core.labels[this.target.value]);
+                                        }
+                                            
+                                    }
+    
+                                    else
+                                        AdvTag.labelTime = null;
+    
+                                    if(AdvTag.tl[query.currentScenario])
+                                        AdvTag.tl[query.currentScenario].play();
+                                }
+    
+                                
+                                
+                            }.bind(list[i].data.pm));
+                            Comima.contain.addChild(Adv.core.selects[list[i].data.pm.label.value], "select");
                         }
-
-                        if(Adv.core.scenario[i].tagname === "bg_show")
-                            Adv.core.exec.master_tag["prev_bg"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[Adv.core.scenario[i].data.pm.tagname].pm), pm));
+    
+                        switch(list[i].tagname)
+                        {
+                            case "chara_show":
+                            case "text_show":
+                            case "spine":
+                            case "bg_show":
+                            case "effects":
+                            break;
+    
+                            default:
+                                continue;
+                        }
+    
+                        var pm = {};
+    
+                        if(Array.isArray(list[i].data))
+                        {
+                            for(var name in list[i].data[0].pm)
+                            {
+                                pm[name] = list[i].data[0].pm[name].value === undefined ? list[i].data[0].pm[name] : list[i].data[0].pm[name].value;
+                            }
+            
+                            if(list[i].data[0].pm.tagname === "chara_show")
+                            {
+                                pm.name = pm.name.substring(pm.name.lastIndexOf("/") + 1);
+                                Adv.core.exec.master_tag["prev_chara"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
+                            }
+            
+                            else if(list[i].data[0].pm.tagname === "text_show")
+                            {
+                                Adv.core.exec.master_tag["prev_text"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
+                            }
+            
+                            else if(list[i].data[0].pm.tagname === "spine")
+                            {
+                                Adv.core.exec.master_tag["prev_spine"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
+                            }
+    
+                            else if(list[i].data[0].pm.tagname === "effects")
+                            {
+                                Adv.core.exec.master_tag["prev_effects"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data[0].pm.tagname].pm), pm));
+                            }
+                        }
+                        
+                        else 
+                        {
+                            for(var name in list[i].data.pm)
+                            {
+                                pm[name] = list[i].data.pm[name].value === undefined ? list[i].data.pm[name] : list[i].data.pm[name].value;
+                            }
+    
+                            if(list[i].tagname === "bg_show")
+                                Adv.core.exec.master_tag["prev_bg"].start($.extend(true, $.cloneObject(Adv.core.exec.master_tag[list[i].data.pm.tagname].pm), pm));
+                        }
                     }
                 }
+            }.bind(this);
+    
+            for(var name in Adv.core.cache_scenario)
+            {
+                prev_create(Adv.core.cache_scenario[name]);
             }
 
-            AdvTag.tl.play();
+            AdvTag.tl[query.currentScenario].play();
         }
     },
-    
+
     buildTag: function (array_tag, label_name) {
 
     },
@@ -698,14 +565,22 @@ AdvTag.plugin.tag.s = {
         var property = {
             duration: 1,
             complete: function (instance) {
-                AdvTag.tl.pause();
+
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+                AdvTag.s[query.currentScenario] = true;
+                AdvTag.tl[query.currentScenario].pause();
                 Comima.contain.selectActivate(true);
             }.bind(data.pm)
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -724,11 +599,11 @@ AdvTag.plugin.tag.label = {
                 }
             }
 
-            AdvTag.labels[list[0].data.pm.text.value] = min;
+            Adv.core.labels[list[0].data.pm.text.value] = min;
         }
 
         else {
-            AdvTag.labels[list.pm.text.value] = list.start;
+            Adv.core.labels[list.pm.text.value] = list.start;
         }
     }
 };
@@ -760,7 +635,8 @@ AdvTag.plugin.tag.chara_show = {
             opacity: parseInt(data[0].after.opacity),
             name: data[0].pm.name.value,
             easing: 'linear',
-            duration: duration
+            duration: duration,
+            loop: false
         };
 
         var event = ["begin", "loopBegin", "changeBegin", "change", "changeComplete", "update", "loopComplete", "complete"];
@@ -769,6 +645,19 @@ AdvTag.plugin.tag.chara_show = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             instance[event[event_i]] = function (instance) {
+
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+                if(AdvTag.s[query.currentScenario])
+                    return;
+                
+                if(AdvTag.p[query.currentScenario])
+                    return;
+
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
                 if (this.duplication !== undefined) {
@@ -781,6 +670,25 @@ AdvTag.plugin.tag.chara_show = {
                 Adv.core.sprites[name].rotation = that.rotate * (Math.PI / 180);
                 Adv.core.sprites[name].scale.set((that.scale / 100), (that.scale / 100))
                 Adv.core.sprites[name].filters[0].blur = that.blur;
+
+                if(arguments[1] === "complete")
+                {
+                    if(this.quake !== undefined)
+                    {
+                        if(this.quake.value)
+                        {
+                            if(this.quake_power)
+                            {
+                                yure_start_on({name: name, yure_scalex: 21 - (parseInt(this.quake_power.value)), yure_scaley: 21 - (parseInt(this.quake_power.value)), speed: parseInt(this.quake_speed.value) - 5});
+                            }
+
+                            else
+                            {
+                                yure_start_on({name: name, yure_scalex: 20, yure_scaley: 20, speed: 0});
+                            }
+                        }
+                    }
+                }
             }.bind(data[0].pm)
         }
 
@@ -808,7 +716,7 @@ AdvTag.plugin.tag.chara_show = {
             }
         }
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -825,6 +733,14 @@ AdvTag.plugin.tag.chara_mod = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance, eventname) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var index = Math.ceil(that.index);
 
@@ -877,8 +793,8 @@ AdvTag.plugin.tag.chara_mod = {
         var duration = data.pm.time === undefined ? 1 : (parseInt(data.pm.time.value) === 0 ? 1 : parseInt(data.pm.time.value));
 
         property.index = index + 1;
-        property.opacity = data.after.alpha * (i + 1);
-        property.cross = data.after.alpha * (i + 1);
+        property.opacity = data.after.alpha;
+        property.cross = data.after.alpha;
         property.duration = duration;
 
         if (!data.pm.cross.value)
@@ -898,6 +814,15 @@ AdvTag.plugin.tag.chara_move = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.pm.name.value.substring(this.pm.name.value.lastIndexOf("/") + 1);
 
@@ -911,15 +836,33 @@ AdvTag.plugin.tag.chara_move = {
                 Adv.core.sprites[name].rotation = that.rotate * (Math.PI / 180);
                 Adv.core.sprites[name].scale.set((that.scale / 100), (that.scale / 100))
                 Adv.core.sprites[name].filters[0].blur = that.blur;
+
+                if(arguments[1] === "loopComplete")
+                {
+                    if(this.pm.quake !== undefined)
+                    {
+                        if(this.pm.quake.value)
+                        {
+                            if(this.pm.quake_power)
+                            {
+                                yure_start_on({name: name, yure_scalex: 21 - (parseInt(this.pm.quake_power.value)), yure_scaley: 21 - (parseInt(this.pm.quake_power.value)), speed: parseInt(this.pm.quake_speed.value) - 5});
+                            }
+
+                            else
+                            {
+                                yure_start_on({name: name, yure_scalex: 20, yure_scaley: 20, speed: 0});
+                            }
+                        }
+                    }
+                }
             }.bind(data);
         }
         var loop = parseInt(data.pm.again.value);
         loop = loop === 1 ? false : loop;
 
         property.loop = loop;
-        
-        tl.add(property, parseInt(data.start) + 1);
-        return tl;  
+
+        return tl.add(property, parseInt(data.start) + 1);
     }
 };
 
@@ -933,6 +876,17 @@ AdvTag.plugin.tag.chara_hide = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.tl[query.currentScenario].paused)
+                    return;
+
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.pm.name.value.substring(this.pm.name.value.lastIndexOf("/") + 1);
 
@@ -979,6 +933,14 @@ AdvTag.plugin.tag.text_show = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             instance[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var sha = new jsSHA("SHA-256", "TEXT");
                 sha.update(this.text.value);
@@ -996,7 +958,7 @@ AdvTag.plugin.tag.text_show = {
                 AdvTag.plugin.tag[data[i].pm.tagname].init(temp, data[i]);
         }
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1010,6 +972,14 @@ AdvTag.plugin.tag.text_move = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var sha = new jsSHA("SHA-256", "TEXT");
                 sha.update(this.text.value);
@@ -1035,6 +1005,14 @@ AdvTag.plugin.tag.text_hide = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var sha = new jsSHA("SHA-256", "TEXT");
                 sha.update(this.text.value);
@@ -1074,6 +1052,14 @@ AdvTag.plugin.tag.spine = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             instance[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
@@ -1098,11 +1084,26 @@ AdvTag.plugin.tag.spine = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             _instance[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
+                /*
                 if(!JSON.parse(this.loop.value))
                     Adv.core.sprites[name].state.tracks[0].trackTime = that.time / 1000;
+                */
+
+               if(arguments[1] === "begin")
+               {
+                    Adv.core.sprites[name].state.tracks[0].trackTime = 0;
+               }
 
                 if(this.speed !== undefined)
                     Adv.core.sprites[name].state.tracks[0].timeScale = parseFloat(this.speed.value);
@@ -1116,7 +1117,7 @@ AdvTag.plugin.tag.spine = {
                 AdvTag.plugin.tag[data[i].pm.tagname].init(temp, data[i]);
         }
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1130,6 +1131,14 @@ AdvTag.plugin.tag.spine_move = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
@@ -1158,6 +1167,14 @@ AdvTag.plugin.tag.spine_mod = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
@@ -1184,6 +1201,13 @@ AdvTag.plugin.tag.spine_speed = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
                 if(this.speed !== undefined)
@@ -1205,6 +1229,13 @@ AdvTag.plugin.tag.spine_hide = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
                 var that = instance.animatables[0].target;
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
 
@@ -1239,8 +1270,25 @@ AdvTag.plugin.tag.select = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
+                if(AdvTag.s[query.currentScenario])
+                    return;
+                
+                if(AdvTag.p[query.currentScenario])
+                    return;
+
                 var that = instance.animatables[0].target;
                 var name = this.label.value;
+
+                console.log("name: " + name + " opacity: " + that.opacity);
+                if(that.opacity === 100)
+                    Adv.core.selects[name].visible = true;
 
                 Adv.core.selects[name].alpha = parseInt(that.opacity) / 100;
                 Adv.core.selects[name].position.set(parseInt(that.posx), parseInt(that.posy));
@@ -1248,7 +1296,7 @@ AdvTag.plugin.tag.select = {
         }
 
         tl.add(property, data.start);
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1270,18 +1318,28 @@ AdvTag.plugin.tag.select_hide = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
-                if (AdvTag.tl.paused)
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
+                if(AdvTag.s[query.currentScenario])
+                    return;
+                
+                if(AdvTag.p[query.currentScenario])
                     return;
 
                 var that = instance.animatables[0].target;
                 var name = this.label.value;
 
                 Adv.core.selects[name].alpha = parseInt(that.opacity) / 100;
+                Adv.core.selects[name].visible = false;
             }.bind(data.pm);
         }
 
         tl.add(property, data.start + 1);
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1297,16 +1355,23 @@ AdvTag.plugin.tag.playbgm = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
                 Adv.core.SoundMgr.Stop(Adv.core.prevBGM);
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
-                //Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
+                Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
                 Adv.core.prevBGM = name;
             }.bind(data.pm)
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1320,14 +1385,21 @@ AdvTag.plugin.tag.playse = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
-                //Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
+                Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
             }.bind(data.pm)
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1341,14 +1413,21 @@ AdvTag.plugin.tag.playvoice = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
-                //Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
+                Adv.core.SoundMgr.Play(name, this.loop.value, parseInt(this.volume.value) / 100);
             }.bind(data.pm)
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1362,6 +1441,13 @@ AdvTag.plugin.tag.stopbgm = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
                 var name = Adv.core.prevBGM;
                 Adv.core.SoundMgr.Stop(name);
             }.bind(data.pm)
@@ -1369,7 +1455,7 @@ AdvTag.plugin.tag.stopbgm = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1383,6 +1469,13 @@ AdvTag.plugin.tag.stopse = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
                 Adv.core.SoundMgr.Stop(name);
             }.bind(data.pm)
@@ -1390,7 +1483,7 @@ AdvTag.plugin.tag.stopse = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1404,6 +1497,13 @@ AdvTag.plugin.tag.stopvoice = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
                 var name = this.name.value.substring(this.name.value.lastIndexOf("/") + 1);
                 Adv.core.SoundMgr.Stop(name);
             }.bind(data.pm)
@@ -1411,7 +1511,7 @@ AdvTag.plugin.tag.stopvoice = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1436,6 +1536,14 @@ AdvTag.plugin.tag.quake = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 Comima.contain.root.position.x = that.x;
                 Comima.contain.root.position.y = that.y;
@@ -1444,7 +1552,7 @@ AdvTag.plugin.tag.quake = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1469,6 +1577,14 @@ AdvTag.plugin.tag.sfade = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 if (instance.progress === 0)
                     return;
 
@@ -1502,7 +1618,7 @@ AdvTag.plugin.tag.sfade = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1520,6 +1636,14 @@ AdvTag.plugin.tag.defaultColor = {
             duration: 1,
             color: data.after.color.replace("0x", "#"),
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
 
                 var rgb = that.color.replace("rgba(", "");
@@ -1547,7 +1671,7 @@ AdvTag.plugin.tag.defaultColor = {
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1573,6 +1697,15 @@ AdvTag.plugin.tag.bg_show = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             instance[event[event_i]] = function (instance) {
+                
+                /*
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                */
+
                 var that = instance.animatables[0].target;
 
                 if (Adv.core.sprites.bg)
@@ -1581,7 +1714,7 @@ AdvTag.plugin.tag.bg_show = {
         }
 
         tl.add(instance, parseInt(data.start));
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1595,14 +1728,80 @@ AdvTag.plugin.tag.p = {
         var property = {
             duration: 1,
             complete: function (instance) {
-                Adv.core.isCW = true;
-                AdvTag.tl.pause();
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
+                AdvTag.p[query.currentScenario] = true;
+                setTimeout(function(){Adv.core.isCW = true;}, 100);
+                AdvTag.tl[query.currentScenario].pause();                
             }.bind(data.pm)
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
+    }
+};
+
+AdvTag.plugin.tag.jump = {
+    init: function (data) {
+        var tl = anime.timeline({
+            easing: 'linear',
+            autoplay: false
+        });
+
+        var property = {
+            duration: 1,
+            complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
+                Adv.core.isCW = false;
+
+                if(AdvTag.tl[this.scenario.value] !== undefined)
+                {
+                    for(var name in Adv.core.sprites)
+                    {
+                        Adv.core.sprites[name].alpha = 0;
+                    }
+
+                    for(var name in Adv.core.texts)
+                    {
+                        Adv.core.texts[name].alpha = 0;
+                    }
+
+                    if(this.target.value === "")
+                    {
+                        Adv.core.labels[this.scenario.value][this.target.value] = 0;
+                        AdvTag.labelTime = Adv.core.labels[this.scenario.value][this.target.value];
+                        AdvTag.tl[this.scenario.value].play();
+                    }
+
+                    else if(Adv.core.labels[this.scenario.value][this.target.value] !== undefined)
+                    {
+                        Adv.core.labels[this.scenario.value][this.target.value] = Adv.core.labels[this.scenario.value][this.target.value];
+                        AdvTag.labelTime = Adv.core.labels[this.scenario.value][this.target.value];
+                        AdvTag.tl[this.scenario.value].seek(Adv.core.labels[this.scenario.value][this.target.value]);
+
+                        if(this.scenario.value !== query.currentScenario)
+                            AdvTag.tl[this.scenario.value].play();
+                    }
+
+                    query.currentScenario = this.scenario.value;
+                }
+            }.bind(data.pm)
+        }
+
+        tl.add(property, data.start);
+
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1616,18 +1815,28 @@ AdvTag.plugin.tag.end = {
         var property = {
             duration: 1,
             complete: function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var length = Adv.core.SoundMgr._buffers.length;
 
                 for (var i = 0; i < length; i++) {
                     var volume = Adv.core.SoundMgr._buffers[i]._volume;
                     Adv.core.SoundMgr._buffers[i].fade(volume, 0, 500);
                 }
+                
+                recorder.stop();
             }
         }
 
         tl.add(property, data.start);
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1658,6 +1867,14 @@ AdvTag.plugin.tag.effects = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             instance[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+                
+
                 var that = instance.animatables[0].target;
                 var name = this.label.value.substring(this.label.value.lastIndexOf("/") + 1);
 
@@ -1673,7 +1890,7 @@ AdvTag.plugin.tag.effects = {
             }
         }
 
-        AdvTag.timelines.push(tl);
+        AdvTag.timelines[arguments[1]].push(tl);
     }
 };
 
@@ -1687,6 +1904,13 @@ AdvTag.plugin.tag.effects_stop = {
 
         for (var event_i = 0; event_i < event.length; event_i++) {
             property[event[event_i]] = function (instance) {
+                
+                if(AdvTag.labelTime != null)
+                {
+                    if(instance.parent.delay < AdvTag.labelTime)
+                        return;
+                }
+
                 var that = instance.animatables[0].target;
                 var name = this.pm.label.value.substring(this.pm.label.value.lastIndexOf("/") + 1);
 
@@ -1698,6 +1922,57 @@ AdvTag.plugin.tag.effects_stop = {
     }
 };
 
+AdvTag.plugin.tag.prev_video = {
+    vital: ["name"],
+    pm: {
+        laterTime: "0",
+        play_laterTime: "0",
+        posX: "0",
+        posY: "0",
+        scale: "100",
+        blur: "0",
+        time: "0",
+        loop: "false",
+        wait: "true",
+        alpha: "100",
+        auto: "true",
+        skip: "false"
+    },
+    start: function (pm) {
+        var videoSprite = new PIXI.Sprite(this.parent.VideoMgr.getTexture(pm.name));
+        videoSprite.position.set(parseInt(pm.posX), parseInt(pm.posY));
+        videoSprite.scale.set(parseInt(pm.scale) / 100, parseInt(pm.scale) / 100);
+        videoSprite.anchor.set(0.5, 0.5);
+
+        this.parent.root.Comima.contain.addChild(videoSprite, "Chara");
+
+        this.parent.VideoMgr.appendEndCbk(pm.name, function () {
+            if (pm.wait === "true" && pm.skip === "false")
+                Adv.core.exec.nextOrder();
+        });
+
+        this.parent.sprites[name] = videoSprite;
+
+        var blurFilter = new PIXI.filters.BlurFilter();
+        blurFilter.blur = parseFloat(pm.blur);
+
+        videoSprite.filters = [blurFilter];
+        videoSprite.alpha = 0;
+
+        videoSprite.texture.baseTexture.source.loop = JSON.parse(pm.loop);
+
+        Adv.core.stat.videoSkip = JSON.parse(pm.skip);
+
+        if (JSON.parse(pm.auto)) {
+            videoSprite.texture.baseTexture.source.play();
+        }
+
+        else {
+            videoSprite.texture.baseTexture.source.pause();
+        }
+
+    }
+};
 
 AdvTag.plugin.tag.prev_chara = {
     vital: ["name"],
@@ -1881,7 +2156,7 @@ AdvTag.plugin.tag.prev_text = {
         graphics.drawRect(0, 0, width, height);
         graphics.endFill();
 
-        var test = new PIXI.Sprite(app.renderer.generateTexture(graphics));
+        var test = new PIXI.Sprite(Comima.app.renderer.generateTexture(graphics));
         test.anchor.set(0.5, 0.5);
         test.addChild(parent);
         rect.sprite.addChild(test);
@@ -1925,11 +2200,18 @@ AdvTag.plugin.tag.prev_spine = {
 
     start: function (pm) {
         var that = this;
-        
         var sprite = new PIXI.spine.Spine(this.parent.SpineMgr.getData(pm.name));
         this.parent.sprites[pm.name] = sprite;
 
         sprite.state.setAnimation(0, pm.animation, JSON.parse(pm.loop));
+        
+        /*
+        if(pm.start !== -1)
+            sprite.state.tracks[0].animationStart = parseFloat(pm.start);
+
+        if(pm.end !== -1)
+            sprite.state.tracks[0].animationEnd = parseFloat(pm.end);
+        */
         Comima.contain.addChild(sprite, "Chara");
 
         var scale = parseInt(pm.scale) / 100;
@@ -1985,24 +2267,14 @@ AdvTag.plugin.tag.prev_bg = {
         var sprite = new PIXI.Sprite(this.parent.BgImgMgr.getTexture(pm.name));
         Comima.contain.addChild(sprite, "BG");
 
-        var pos = {
-            x: parseInt(pm.posX),
-            y: parseInt(pm.posY),
-        };
-
-        var anchor = {
-            x: parseFloat(pm.anchorX),
-            y: parseFloat(pm.anchorY),
-        };
-
-        sprite.position.set(pos.x, pos.y);
-        sprite.anchor.set(anchor.x, anchor.y);
+        sprite.position.set(0, 0);
+        sprite.anchor.set(0, 0);
         sprite.alpha = 0;
 
         this.parent.sprites["bg"] = sprite;
 
         var blurFilter = new PIXI.filters.BlurFilter();
-        blurFilter.blur = parseFloat(pm.blur);
+        blurFilter.blur = 0;
 
         sprite.filters = [blurFilter];
     }

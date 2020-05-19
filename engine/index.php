@@ -1,8 +1,4 @@
-<?php 
-header( 'Cache-Control: no-store, no-cache, must-revalidate' );
-header( 'Cache-Control: post-check=0, pre-check=0', false );
-header( 'Pragma: no-cache' );
-?><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 
@@ -61,29 +57,30 @@ body
 <script type="text/javascript" src="./js/lib/pixi-spine.js?ver=<?php echo date("YmdHis"); ?>"></script>
 <script src="./js/lib/sha256.js?ver=<?php echo date("YmdHis"); ?>"></script>
 <!--
-<script type="text/javascript" src="./js/all.js?ver=<?php echo date("YmdHis"); ?>"></script>
+<script type="text/javascript" src="./js/all.js?ver="></script>
 -->
 
 
 
-<script type="text/javascript" src="./js/Adv/lib/container.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/lib/SpineManager.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/lib/ImageManager.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/lib/SoundManager.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/lib/VideoManager.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/Rain.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/Blossoms.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/Snow.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/Advlib.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/AdvTag.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/AdvModule.js?ver=<?php echo date("YmdHis"); ?>"></script>
-<script type="text/javascript" src="./js/Adv/AdvCore.js?ver=<?php echo date("YmdHis"); ?>"></script>
+<script type="text/javascript" src="./js/Adv/lib/container.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/lib/SpineManager.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/lib/ImageManager.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/lib/SoundManager.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/lib/VideoManager.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/Rain.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/Blossoms.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/Snow.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/Advlib.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/AdvTag.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/AdvModule.js?ver="></script>
+<script type="text/javascript" src="./js/Adv/AdvCore.js?ver="></script>
 
-<script type="text/javascript" src="./js/app.js?ver=<?php echo date("YmdHis"); ?>"></script>
+<script type="text/javascript" src="./js/yure.js?ver="></script>
+<script type="text/javascript" src="./js/app.js?ver="></script>
 
 <script>
 	Comima.init({target: document.getElementById("pixiview")});
-	Comima.packageLoad("./resource/STK.data");
+	Comima.packageLoad("./resource/yure.data");
 </script>
 </body>
 </html>

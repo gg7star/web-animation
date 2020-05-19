@@ -371,12 +371,13 @@ Adv.core = {
         this.tag = object(AdvTag.plugin.tag);
         this.exec = object(AdvTag.plugin.exec);
         this.exec.parent = this;
-
-        this.scenarios = {};
+        Adv.core.script_folder = [];
+        this.cache_scenario = {};
         for (var name in lists) {
 
             try
             {
+                Adv.core.script_folder.push(name);
                 this.cache_scenario[name] = JSON.parse(lists[name]);
             }
 
@@ -387,9 +388,23 @@ Adv.core = {
             
         }
 
-        var query = QueryString.parse(location.search.substr(1));
+		Adv.core.labels = {};
+
+		for(var i=0; i<Adv.core.script_folder.length; i++)
+		{
+			var name = Adv.core.script_folder[i].replace(".ssk", "")
+			Adv.core.labels[name] = {};
+
+			for(var j=0;j<Adv.core.cache_scenario[name].length; j++)
+			{
+				if(Adv.core.cache_scenario[name][j].tagname === "label")
+				{
+					Adv.core.labels[name][Adv.core.cache_scenario[name][j].data.pm.text.value] = Adv.core.cache_scenario[name][j].data.start;
+				}
+			}
+		}
+
         //var parseScenario = lists[decodeURI(query.scenario)];
-        Adv.core.scenario = this.cache_scenario["main"];
         this.LoadScript = true;
 
         this.charaDetail = [];

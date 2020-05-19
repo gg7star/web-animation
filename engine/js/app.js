@@ -1,3 +1,27 @@
+var QueryString = {
+    parse: function (text, sep, eq, isDecode) {
+        text = text || location.search.substr(1);
+        sep = sep || '&';
+        eq = eq || '=';
+        var decode = (isDecode) ? decodeURIComponent : function (a) { return a; };
+        return text.split(sep).reduce(function (obj, v) {
+            var pair = v.split(eq);
+            obj[pair[0]] = decode(pair[1]);
+            return obj;
+        }, {});
+    },
+    stringify: function (value, sep, eq, isEncode) {
+        sep = sep || '&';
+        eq = eq || '=';
+        var encode = (isEncode) ? encodeURIComponent : function (a) { return a; };
+        return Object.keys(value).map(function (key) {
+            return key + eq + encode(value[key]);
+        }).join(sep);
+    },
+};
+
+var query = QueryString.parse(location.search.substr(1));
+
 var FPS = function (root) {
     this.FPSText = new PIXI.Text("FPS: ", {
         fontFamily: 'Snippet',
@@ -5,8 +29,9 @@ var FPS = function (root) {
         fill: 'red',
         color: "0xff0000"
     });
-    this.FPSText.position.set(670, 30);
+    this.FPSText.position.set(window.Comima.width * 0.85, 30);
     this.FPSText.anchor.set(0, 0.5);
+    this.FPSText.visible = window.Comima.isFPS;
     this.root = root;
     this.root.app.stage.addChild(this.FPSText);
 
@@ -31,11 +56,14 @@ var tool = function () {
     this.contain = null;
     this._fps = [];
     this.per = 1;
-    this.size = [640 * this.per, 960 * this.per];
+    this.width = 720;
+    this.height = 1280;
+    this.size = [this.width * this.per, this.height * this.per];
     this.checksum = [];
     this.ratio = this.size[0] / this.size[1];
     this.titleText = null;
     this.fps = null;
+    this.isFPS = false;
 };
 
 tool.prototype.init = function (propy) {
@@ -168,7 +196,9 @@ tool.prototype.init = function (propy) {
         if(Adv.core.isCW)
         {
             Adv.core.isCW = false;
-            AdvTag.tl.play();
+            AdvTag.p[query.currentScenario] = false;
+            AdvTag.tl[query.currentScenario].completed.completed = false;
+            AdvTag.tl[query.currentScenario].play();
         }
     });
 
@@ -246,6 +276,8 @@ tool.prototype.init = function (propy) {
             this.charaAni(deltatime);
             Adv.core.Update(deltatime);
         }
+
+        yure_chg();
     }.bind(this));
 
     window.onresize = this.resize.bind(this);
@@ -419,8 +451,7 @@ function resourceLoad()
 }
 
 function init() {
-    var query = QueryString.parse(location.search.substr(1));
-    var filename = "/script/main.ssk";
+    var filename = "/script/" + JSON.parse(resources["info.json"]).start + ".ssk";
 
     Adv.core.regexp = ["「", "」", "『", "』", "【", "】", "―", "ー", "…", "：", ":"];
     window.Comima.isinit = true;
@@ -492,7 +523,7 @@ tool.prototype.balance = function () {
 
     if (avg < 15) {
         this.per -= 0.1;
-        this.size = [640 * this.per, 960 * this.per];
+        this.size = [this.width * this.per, this.height * this.per];
         this.ratio = this.size[0] / this.size[1];
 
         this.resize();
@@ -509,7 +540,7 @@ tool.prototype.balance = function () {
             this.per = 1;
         }
 
-        this.size = [640 * this.per, 960 * this.per];
+        this.size = [this.width * this.per, this.height * this.per];
         this.ratio = this.size[0] / this.size[1];
 
         this.resize();
@@ -556,28 +587,6 @@ tool.prototype.resize = function(){
 
 tool.prototype.lerp = function(start, end, amt) {
     return start + (end - start) * amt;
-};
-
-var QueryString = {
-    parse: function (text, sep, eq, isDecode) {
-        text = text || location.search.substr(1);
-        sep = sep || '&';
-        eq = eq || '=';
-        var decode = (isDecode) ? decodeURIComponent : function (a) { return a; };
-        return text.split(sep).reduce(function (obj, v) {
-            var pair = v.split(eq);
-            obj[pair[0]] = decode(pair[1]);
-            return obj;
-        }, {});
-    },
-    stringify: function (value, sep, eq, isEncode) {
-        sep = sep || '&';
-        eq = eq || '=';
-        var encode = (isEncode) ? encodeURIComponent : function (a) { return a; };
-        return Object.keys(value).map(function (key) {
-            return key + eq + encode(value[key]);
-        }).join(sep);
-    },
 };
 
 window.engine = (function () {
